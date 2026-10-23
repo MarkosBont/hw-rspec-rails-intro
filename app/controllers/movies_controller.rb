@@ -45,8 +45,43 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
-  private
+  def search_tmdb
+    if request.post?
+      if params[:title].blank?
+        flash.now[:danger] = 'Please fill in all required fields!'
+        return
+      end
 
+      @movies = Movie.find_in_tmdb(
+        title: params[:title],
+        release_year: params[:release_year],
+        language: params[:language]
+      )
+
+      if @movies.empty?
+        flash.now[:warning] = 'No movies found with given parameters!'
+      end
+  end
+
+  def add_movie
+    @movie = Movie.create!(movie_params)
+
+    flash[:success] = "#{@movie.title} was successfully added to RottenPotatoes."
+
+    redirect_to search_path
+  end
+
+rescue StandardError => e
+  Rails.logger.error("TMDb search failed: #{e.message}")
+  flash.now[:danger] = 'Unable to search TMDb. Please try again.'
+end
+
+  private
+  
+  def movie_params
+    params.require(:movie).permit(:title, :rating, :release_date, :description)
+  end
+  
   def force_index_redirect
     return unless !params.key?(:ratings) || !params.key?(:sort_by)
 
@@ -66,4 +101,5 @@ class MoviesController < ApplicationController
   def sort_by
     params[:sort_by] || session[:sort_by] || 'id'
   end
+
 end
