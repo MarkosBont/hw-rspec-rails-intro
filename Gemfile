@@ -11,6 +11,7 @@ gem 'jquery-rails'
 gem 'bigdecimal', '1.3.5'
 gem 'web-console', '~> 4'
 gem 'webmock'
+gem 'json', '~> 2.7'
 
 # for Heroku deployment - as described in Ap. A of ELLS book
 group :development, :test do
